@@ -14,7 +14,7 @@ import tkinter as tk
 from socket import *
 import _thread
 
-from ETTTP_TicTacToe_skeleton import TTT, check_msg
+from ETTTP_TicTacToe import TTT, check_msg
     
 if __name__ == '__main__':
 
@@ -31,17 +31,12 @@ if __name__ == '__main__':
         ###################################################################
         # Receive who will start first from the server
         start_move_message = client_socket.recv(SIZE).decode().strip()
-        #start_move_info = start_move_message.split('\r\nFirst-Move: ')[1].split('\r\n')[0]
         check_reuslt = (check_msg(start_move_message, MY_IP))
 
-
+        # Send ACK 
         if check_reuslt:
             ack_message ="ACK"+start_move_message[4:]
             client_socket.sendall(ack_message.encode())
-
-        # Send ACK 
-        #ack_message = 'ACK ETTTP/1.0\r\nHost: {}\r\n\r\n'.format(MY_IP)
-        #client_socket.sendall(ack_message.encode())
         ###################################################################
         
         # Start game

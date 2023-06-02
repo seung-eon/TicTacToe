@@ -14,7 +14,7 @@ import tkinter as tk
 from socket import *
 import _thread
 
-from ETTTP_TicTacToe_skeleton import TTT, check_msg
+from ETTTP_TicTacToe import TTT, check_msg
     
 if __name__ == '__main__':
     
@@ -45,7 +45,7 @@ if __name__ == '__main__':
         print(ack_message)
         ###################################################################
 
-        #if ack_message == 'ACK':
+        #if check_msg(ack_message, MY_IP):
         #    root = TTT(client=False,target_socket=client_socket, src_addr=MY_IP,dst_addr=client_addr[0])
         #    root.play(start_user=start)
         #    root.mainloop()
