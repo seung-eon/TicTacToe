@@ -214,26 +214,20 @@ class TTT(tk.Tk):
 
         # send message and check ACK
         move = f'({row}, {col})'  # Convert the selection to (row, col) format
+        ack_message = f'SEND ETTTP/1.0\r\nHost: {self.send_ip}\r\nNew-Move: {move}\r\n\r\n'
 
-        ack_message = f'ACK ETTTP/1.0\r\nHost: {self.send_ip}\r\nNew-Move: {move}\r\n\r\n'
         self.socket.sendall(ack_message.encode())
 
         # Wait for the ACK response from the peer
-        response = self.socket.recv(SIZE).decode().strip()
+        response = self.socket.recv(SIZE).decode()
 
         # Check if the ACK response is received
-        if response == 'ACK':
-            self.update_board(self.user, selection, get=False)
-
-            if self.state == self.active:
-                self.my_turn = 0
-                self.l_status_bullet.config(fg='red')
-                self.l_status['text'] = 'Wait'
-
+        if check_msg(response, self.recv_ip) and response.startswith("ACK") and "First-Move: ME" in response:
             return True
         else:
             return False
         #####################################  
+
 
     def get_move(self):
         '''
