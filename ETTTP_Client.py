@@ -48,12 +48,12 @@ if __name__ == '__main__':
         if check_result:
             ack_message ="ACK"+start_move_message[4:]
             client_socket.sendall(ack_message.encode())
+        else:
+            print("메세지가 틀림")
+            quit()
         ###################################################################
         
         # Start game
         root = TTT(target_socket=client_socket, src_addr=MY_IP,dst_addr=SERVER_IP)
-        root.play(start_user=1)
+        root.play(start_user=start)
         root.mainloop()
-        client_socket.close()
-
-        
