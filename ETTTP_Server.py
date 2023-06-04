@@ -46,13 +46,14 @@ if __name__ == '__main__':
         # Receive ack - if ack is correct, start game
         ack_message = client_socket.recv(SIZE).decode().strip()
         ###################################################################
+        print("ack message: {}".format(ack_message))
 
         if check_msg(ack_message, MY_IP):
             root = TTT(client=False,target_socket=client_socket, src_addr=MY_IP,dst_addr=client_addr[0])
-            root.play(start_user=1)
+            root.play(start_user=start)
             root.mainloop()
+        else:
+            print("메세지가 틀림")
+            quit()
 
-        client_socket.close()
         
-        break
-    server_socket.close()
