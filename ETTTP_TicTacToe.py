@@ -71,6 +71,7 @@ class TTT(tk.Tk):
                                 command=self.quit)
         self.b_quit.pack(side=tk.RIGHT)
         #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
     def create_status_frame(self):
         '''
         Status UI that shows "Hold" or "Ready"
@@ -110,8 +111,7 @@ class TTT(tk.Tk):
         self.b_debug = tk.Button(self.debug_frame,text="Send",command=self.send_debug)
         self.b_debug.pack(side=tk.RIGHT)
         #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        
-    
+          
     def create_board_frame(self):
         '''
         Tic-Tac-Toe Board UI
@@ -210,10 +210,11 @@ class TTT(tk.Tk):
         selection : selected button number
         '''
         row,col = divmod(selection,3)
+        print("row: {}, col: {}".format(row, col))
         ###################  Fill Out  #######################
 
         # send message and check ACK
-        move = f'({row}, {col})'  # Convert the selection to (row, col) format
+        move = f'({row},{col})'  # Convert the selection to (row,col) format
         ack_message = f'SEND ETTTP/1.0\r\nHost:{self.send_ip}\r\nNew-Move:{move}\r\n\r\n'
 
         self.socket.sendall(ack_message.encode())
@@ -222,12 +223,11 @@ class TTT(tk.Tk):
         response = self.socket.recv(SIZE).decode()
 
         # Check if the ACK response is received
-        if check_msg(response, self.recv_ip) and response.startswith("ACK") and "First-Move: ME" in response:
+        if check_msg(response, self.recv_ip) and response.startswith("ACK") and "First-Move:ME" in response:
             return True
         else:
             return False
         #####################################  
-
 
     def get_move(self):
         '''
@@ -239,11 +239,12 @@ class TTT(tk.Tk):
         '''
         # get message using socket
         msg = self.socket.recv(SIZE).decode()
-        print(msg)
+        print("get_move의 msg: {}".format(msg))
         # msg_valid_check = False
         msg_valid_check = check_msg(msg, self.recv_ip)
         
-        if msg_valid_check: # Message is not valid(msg_valid_check = true인 경우 종)
+        if not msg_valid_check: # Message is not valid(msg_valid_check = true인 경우 종)
+            print("메세지가 유효하지 않음")
             self.socket.close() 
             self.quit()
         else:  # If message is valid -> send ack, update board and change turn
@@ -254,7 +255,7 @@ class TTT(tk.Tk):
             loc = int(row) * 3 + int(col)
 
             # Send the ACK response
-            ack_response = 'ACK'
+            ack_response = "ACK"+msg[4:]
             self.socket.sendall(ack_response.encode())
 
             #vvvvvvvvvvvvvvvvvvv  DO NOT CHANGE  vvvvvvvvvvvvvvvvvvv
@@ -396,18 +397,22 @@ def check_msg(msg, ip):
 
         #ip가 제대로 작성되었는지 확인
         if ip!=expected_ip:
+            print("ip 잘못됨")
             return False
 
-        #send와 ack 맞는지 확인
+        #send, result, ack 맞는지 확인
         if type not in ("SEND", "ACK", "RESULT"):
+            print("type 잘못됨")
             return False
 
         #ETTTP이고, 버전이 맞는지 확인
         if etttp!="ETTTP/1.0":
+            print("etttp 잘못됨")
             return False
     
         #호스트가 올바르고 구문이 맞는지 확인
         if host!="Host:"+expected_ip:
+            print("host 잘못됨")
             return False
         
         #new move가 0과 2 사이이고 구문이 맞는지 확인
@@ -419,10 +424,12 @@ def check_msg(msg, ip):
             winner= action[7:]
             if winner in ("ME", "YOU"):
                 return True
-        elif type =="SEND" and action.startswith("First-Move:"):
+        elif type in ("SEND", "ACK") and action.startswith("First-Move:"):
             first_turn=action[11:]
             if first_turn in ("ME", "YOU"):
                 return True
+        print("First-Move 잘못됨")
         return False
     except Exception as e:
+        print("예외 발생")
         return False
