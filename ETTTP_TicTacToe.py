@@ -214,7 +214,7 @@ class TTT(tk.Tk):
 
         # send message and check ACK
         move = f'({row}, {col})'  # Convert the selection to (row, col) format
-        ack_message = f'SEND ETTTP/1.0\r\nHost: {self.send_ip}\r\nNew-Move: {move}\r\n\r\n'
+        ack_message = f'SEND ETTTP/1.0\r\nHost:{self.send_ip}\r\nNew-Move:{move}\r\n\r\n'
 
         self.socket.sendall(ack_message.encode())
 
@@ -239,7 +239,7 @@ class TTT(tk.Tk):
         '''
         # get message using socket
         msg = self.socket.recv(SIZE).decode()
-        
+        print(msg)
         # msg_valid_check = False
         msg_valid_check = check_msg(msg, self.recv_ip)
         
@@ -247,8 +247,8 @@ class TTT(tk.Tk):
             self.socket.close() 
             self.quit()
         else:  # If message is valid -> send ack, update board and change turn
-            move_info = msg.split('\r\nNew-Move: ')[1].split('\r\n')[0]
-            row, col = move_info.strip('()').split(',')
+            move_info = msg[msg.index("New-Move:") + len("New-Move:("):][:3]
+            row, col = move_info.split(',')
 
             # Calculate the location on the board
             loc = int(row) * 3 + int(col)
